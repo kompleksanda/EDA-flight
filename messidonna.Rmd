@@ -1,0 +1,400 @@
+---
+title: "Data Visualization Coursework 2"
+author: "Peace I. Ikhiragbebho"
+date: "2023-04-12"
+header-includes:
+  \usepackage{fvextra}
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+    fig_caption: yes
+  word_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+bibliography: Bibliography.bibtex
+csl: cite_them_right_harvard_12_edition.csl
+link-citations: TRUE
+nocite: '@*'
+---
+# PROJECT SUMMARY
+This R project focuses on the explorative analysis of a flight dataset containing IFR (Instrument Flight Rules) departures and arrivals of flights across European airports from January 2016 to May 2022. I developed four research objectives that shows quantitative and qualitative insights using various statatiscal and visualization tools.
+
+To perform the explorative data analysis, I followed a data processing pipeline and techniques. The project relies on various R packages, such as tidyverse and ggplot, to perform the necessary data manipulation and analysis tasks. By analyzing the dataset, valuable insights into the throughput and business of European airports and the overall state of the aviation industry in Europe can be obtained.
+
+The project is sectioned into parts:
+
+- **Project Summary**: This current summary of the project
+- **Introduction**: An introduction to the research topic and the dataset you've chosen as well as the research questions, or research objectives.
+- **Methods**: The description of the characteristics of the variables of interest, and the data cleaning/wrangling steps used.
+- **Results (or Findings)**: The different types of data visualisations that address the research questions, and explanations.
+- **Conclusion**. My conclusions and insights from the analysis.
+- **References**: References
+- **Appendix**: Full code appendix
+
+# INTRODUCTION
+
+The dataset captures IFR (Instrument Flight Rules) departures and arrivals of flights as recorded by airport operators and airport network managers. This dataset captures the flight activities from January 2016 to May 2022 across European airports, providing valuable insights into the throughput and business of European airports and the overall state of the aviation industry in European. The dataset includes the *Year*, *Month Number*, *Month Abbreviation*, *Flight Date*, *Airport ICAO Code*, *Airport Name*, *State Name*, and the *Number of Flights* for different categories such as Number of Total Flights, Number of Departures, Number of Arrivals, Number of Instrument Flight Rules (IFR) Departures, Number of IFR Arrivals, Number of IFR Total Flights as recorded by airport operators and airport network managers. The Pivot Label indicates the name of the airport followed by the airport ICAO code. By analyzing this dataset, we can have a better understand of the patterns and trends in flight traffic that emerged during this unique time in the aviation industries. The dataset is obtained from [@EuropeanCommission;@tidytuesday2022]
+
+# RESEARCH OBJECTIVES
+
+From a careful analysis of the dataset, its features and variables, this research work will provide answers to the following questions below with regard to the European dataset from January 2016 to May 2022.
+
+1. How has flight decreased and increased across Europe over the period under review?
+2. What are the flight trends across the months before, during and after covid-19 pandemic (2019-2021)?
+3. Which airport had the highest and lowest average flights per day in August 2021 in the UK?
+4. Are there any significant correlations between total departure and arrival recorded by the airport operator and network manager across the dataset?
+
+
+# METHODS
+We will use the following techniques to perform the explorative data analysis:
+
+1. **Data cleaning and Pre-processing**: This involves handling missing values, removing outliers, and converting data types as necessary.
+2. **Descriptive Statistics**: Calculating summary statistics such as mean, median, and standard deviation to better understand the distribution of the data.
+3. **Data Visualization**: Creating various types of plots to visually explore the relationships between variables and answer the research questions.
+
+## Data cleaning and Pre-processing
+With research questions in mind, the variables that will provide an insight into trends in the European flight dataset and provide answers to the research questions will be identified and variables that are not required for this research would be dropped.
+
+## Important Variables to the Research Questions
+
+The variables below are important and give us an insight into the European flight dataset, it also provides answers to the research questions
+
+| **Variables** | **Description** | 
+|:------|:------| 
+|YEAR | The year is an integral variable and is one of the important variables in the European flight dataset, it gives us an insight into when flights depart and arrive annually in Europe. This data was provided by the Network Manager. | 
+| MONTH | There are two variables representing months in the dataset, (MONTH_NUM which is integral, and MONTH_MON which is a character). The month gives us an insight into what month the flights depart and arrives in Europe. It is represented numerically (1-12) and also abbreviated (Jan -- Dec). This data was provided by the Network Manager. | 
+| FLT_DATE | this character variable gives us an insight into the date as in the day, month and year that the flight arrives or departs. |
+| STATE_NAME | This is one of the most important character variables in the dataset. Though it is referred to as state in the flight dataset, it is the name of the country in which the airport is located. This data was provided by the Performance Review Unit (PRU). |
+| APT_NAME | This is one of the most important character variables in the dataset. It is the name of the airport in which flights depart and arrive and there are three hundred and thirty-three airports across Europe in the period under review. This data was provided by the Performance Review Unit (PRU). |
+| FLT_DEP_1 | This is an integral variable and it gives us an insight into the number of flights departing from the airport using visual flight rules (VFR) during the day across Europe. This data was provided by the Network Manager. |
+| FLT_ARR_1 | This is an integral variable and it gives us an insight into the number of flights arriving at the airport using VFR during the day across Europe. This data was provided by the Network Manager. |
+| FLT_TOT_1 | This is an integral variable and it gives us an insight into the total number of flights (departing and arriving) at the airport using VFR during the day. This data was provided by the Network Manager. |
+| FLT_DEP_IFR_2 | This is an integral variable and it gives us an insight into the number of flights departing from the airport using instrument flight rules (IFR) during the day. This data was provided by the Airport Operator and contains lots of missing values |
+| FLT_ARR_IFR_2 | This is an integral variable and it gives us an insight into the number of flights arriving at the airport using IFR during the day. This data was provided by the Airport Operator and contains lots of missing values. |
+| FLT_TOT_IFR_2 | This is an integral variable and it gives us an insight into the number of flights (departing and arriving) at the airport using IFR during the day. This data was provided by the Airport Operator and contains lots of missing values. |
+
+
+## Unimportant Variables to the research questions
+
+| **Varibles** | **Description** | 
+|:------|:------|
+| X | This integral variable is just a serial number of the Europe flight data. It is not important to the research question. Pivot_Label: This character variable provides us with the name of the airport and its ICAO code in parentheses. It is not important to the research question. |
+| ATP_ICAO | This character variable provides us the 4 letter airport code. It is not important to the research question. |
+
+
+We first setup global variables for all the chunks. To make long text warp and prevent overflow, we set the maximum width for cutoff at 60
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+install.packages("formatR")
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  echo = TRUE,
+  tidy.opts=list(width.cutoff=60),
+  tidy=TRUE,
+  results='asis'
+)
+```
+
+We then install and import all needed R libraries
+```{r, cache=TRUE}
+install.packages(c("readr","curl", "dplyr", "ggplot2","tidyverse", "summarytools","lubridate","rmarkdown","pillar","tidyr","kableExtra"))
+
+
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(lubridate)
+library(rmarkdown)
+library(dplyr)
+library(summarytools)
+library(tidyr)
+library(kableExtra)
+library(pillar)
+```
+
+Our dataset is then loaded.
+```{r, cache=TRUE}
+flight_dataset <- read.csv("flights.csv")
+```
+
+Let's have an overview of the flight dataset
+```{r}
+glimpse(flight_dataset)
+```
+
+Give the column variables names that correctly represent them
+```{r cache=TRUE}
+colnames(flight_dataset) <- c("x", "Flight_Year", "MONTH_MON", "Flight_Month", "Flight_Date", "APT_ICAO", "Airport_Name", "Country_Name", "Number_of_IFR_Departures_1", "Number_of_IFR_Arrivals_1", "Total_IFR_Movements_1", "Number_of_IFR_Departures_2", "Number_of_IFR_Arrivals_2", "Total_IFR_Movements_2", "Pivot_Label")
+```
+
+Dropping variables that are not needed for the research questions
+```{r}
+drops <- c("x","APT_ICAO", "Pivot_Label")
+flight_dataset <- flight_dataset[ , !(names(flight_dataset) %in% drops)]
+```
+
+What are the dimension of the data-set after dropping variables not needed?
+```{r}
+#The number of rows contained in the dataset dropping variables not needed is
+nrow(flight_dataset)
+#The number of columns contained in the dataset dropping variables not needed is
+ncol(flight_dataset)
+```
+
+What are the type of variables in the dataset?
+```{r}
+kable(sapply(flight_dataset, class), "markdown") %>%
+  kable_styling("striped", full_width = F)
+```
+
+Read the datasets and view the first 10 entries
+```{r}
+kable(head(flight_dataset, n=10), "markdown") %>%
+  kable_styling("striped", full_width = F)
+```
+
+There are some missing values in the flight dataset and they need to be investigated
+
+```{r}
+missing_values <- flight_dataset %>% summarise_all(funs(sum(is.na(.))))
+kable(missing_values, "markdown") %>%
+  kable_styling("striped", full_width = F)
+```
+
+After investigating, 479785 columns has missing values. That's a lot of data not in the flight dataset. There are only three columns where these values are missing, because these columns are important to the research questions, they would not be removed from the dataset, however, the columns would be cleaned before being used.
+
+
+# RESULTS
+
+## Descriptive Statistics
+
+Lets obtain statistical insights into the numerical variables
+```{r}
+flight_dataset %>%
+  select(Number_of_IFR_Departures_1, Number_of_IFR_Arrivals_1, Total_IFR_Movements_1, Number_of_IFR_Departures_2, Number_of_IFR_Arrivals_2, Total_IFR_Movements_2) %>%
+  dfSummary(graph.col = FALSE)
+```
+
+All the columns have a high relative variability except for the flights recorded by the Airport operator. This is likely due to the huge number of missing points. So most of the points are closer to the mean.
+
+Now lets visualize the distributions of flight arrivals, flight departures and the sum of total flights
+```{r numerical-column-distribution, fig.cap="The distributions of the numerical column"}
+flight_dataset %>%
+  ggplot(aes(x = Number_of_IFR_Departures_1)) +
+  geom_histogram(binwidth = 10, fill = "blue", alpha = 0.5) +
+  labs(title = "Number of IFR Departures", x = "IFR Departures", y = "Frequency")
+
+flight_dataset %>%
+  ggplot(aes(x = Number_of_IFR_Arrivals_1)) +
+  geom_histogram(binwidth = 10, fill = "blue", alpha = 0.5) +
+  labs(title = "Number of IFR Arrivals", x = "IFR Arrivals", y = "Frequency")
+
+flight_dataset %>%
+  ggplot(aes(x = Total_IFR_Movements_1)) +
+  geom_histogram(binwidth = 10, fill = "blue", alpha = 0.5) +
+  labs(title = "Number of Total IFR Flights", x = "Total IFR Flights", y = "Frequency")
+```
+It is noticed that all the graphs follow exponential distributions which means small flights airports have very common and large-flight airports are rarer.
+
+Lets see the summary for the categorical variables
+```{r}
+flight_dataset %>%
+  select(Airport_Name, Country_Name) %>%
+  dfSummary()
+```
+
+From the flight dataset, it was noticed that all airports have the same frequency (2343), that is all airports in the dataset have at least a flight for all 2344 days (equal to 6 years and 5 months, 2016-2022). It was also noticed that France has a lot of recorded entries, this may be because France has more active airports than other European countries, but this doesn't mean France has the busiest Airspace or has more airports than the other countries.
+
+Lets now try to plot the top 10 busiest airports
+```{r busiest-airports, fig.cap="The top 10 busiest airports"}
+flight_dataset %>%
+  group_by(Airport_Name) %>%
+  summarize(Total_Number_of_Flight = sum(Total_IFR_Movements_1)) %>%
+  top_n(10, Total_Number_of_Flight) %>%
+  ggplot(aes(x = reorder(Airport_Name, Total_Number_of_Flight), y = Total_Number_of_Flight, fill = Airport_Name)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 10 Busiest Airports", x = "Airport Name", y = "Number of Flights")
+```
+
+By total number of flight, Amsterdam Airport Schiphol is the busiest in Europe.
+
+## Data Visualization
+We used various data visualization charts:
+
+1.  **Bar plot**: Comparing the flight trend across years and months.
+2.  **Heatmap, line graph and Boxplot**: Visualizing the distribution of flights across different months of the year.
+3.  **Scatter plot**: Investigating the correlation between data gathered by network operator and network manager.
+
+### First reserch question using bar plot
+
+This chart will provide answers to the first research question, how has flight decreased and increased across Europe over the years?
+```{r flight-year-plot, fig.cap="The total flights across the years"}
+c_dat <- flight_dataset %>% 
+  group_by(Flight_Year) %>% 
+  summarise(DEPARTURES = sum(Number_of_IFR_Departures_1),
+            ARRIVALS = sum(Number_of_IFR_Arrivals_1)) %>% 
+  arrange(Flight_Year)
+
+c_dat2 <- c_dat %>% gather(key = "FLIGHT_TYPE", value = "FLIGHTS", -Flight_Year)
+arr_depart_chart <- ggplot(c_dat2, aes(x = factor(Flight_Year), y = FLIGHTS, fill = FLIGHT_TYPE)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Year", y = "Flights", fill = "Legend") +
+  theme_minimal()
+
+c_dat2 <- c_dat %>% mutate(PERCENT_INCREASE = (DEPARTURES + ARRIVALS - lag(DEPARTURES + ARRIVALS))/lag(DEPARTURES + ARRIVALS) * 100)
+
+bar_chart <- ggplot(c_dat2, aes(x = Flight_Year, y = DEPARTURES + ARRIVALS)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme_minimal() +
+  labs(x = "Year", y = "Sum of Departures and Arrivals", title = "Total Flights by Percentage")
+bar_chart <- bar_chart +
+  geom_text(aes(label = sprintf("%.1f%%", PERCENT_INCREASE)), 
+            vjust = -0.5, size = 3.5, color = "red", na.rm = TRUE) +
+  scale_y_continuous(labels = scales::comma)
+arr_depart_chart
+bar_chart
+```
+From these charts, it is observed that there was a steady increase in the number of flights from 2016 until 2019. This increase accumulated almost 17.5 million flights in 2019 but in 2020, the number of flights dropped by about half (-56.8%) with an accumulated total flight of about 7.5 million. This drop was caused as a result of travel restrictions and border closures during the Covid-19 pandemic, the pandemic had a significant impact on the aviation industry in Europe, with many airlines struggling to stay afloat. The number of flights increased by 25% the following year (2021) as vaccinations increased and travel restrictions were eased but saw again an almost half reduction (-44.6%) as of May 2022.
+
+### Second research question using heatmap
+To answer the second research question, what are the flight trends across the months before, during and after covid-19 pandemic (2019-2021)?. We visualize using heatmap.
+
+```{r heat-map, fig.cap="The heatmap of flight across months"}
+# Correct month order
+month_order <- c("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+
+data_filtered <- flight_dataset %>%
+  filter(Flight_Year >= 2019 & Flight_Year <= 2021)
+
+# Convert Flight_Month to a factor with the correct order
+data_filtered$Flight_Month <- factor(data_filtered$Flight_Month, levels = month_order)
+
+
+data_agg <- data_filtered %>%
+  group_by(Flight_Year, Flight_Month) %>%
+  summarize(
+    total_departures = sum(Number_of_IFR_Departures_1),
+    total_arrivals = sum(Number_of_IFR_Arrivals_1),
+    total_flights = total_departures + total_arrivals)
+
+ggplot(data_agg, aes(x = Flight_Month, y = Flight_Year, fill = total_flights)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  theme_minimal() +
+  labs(title = "Heatmap of Flights in Europe (2019-2021)",
+    x = "Month",
+    y = "Year",
+    fill = "Total Flights")
+```
+
+From the chart, it is noticed that all months are busy months before Covid-19. The busiest months usually occur around July and August. This is because Europeans tend to take on vacations in these months. In 2020, a sharp decline in flights with almost zero flights recorded in April followed by a gradual increase from May. This increase eases out and steadies starting from Aug 2020 to June 2021. This can be better visualized using the line graph below.
+
+```{r line-graph, fig.cap="The line graph of the trends across month for all the years"}
+ggplot(data_agg, aes(x = Flight_Month, y = total_flights, group = Flight_Year, color = factor(Flight_Year))) +
+  geom_line(size = 1.5) +
+  geom_point(size = 3) +
+  scale_color_discrete(name = "Year") +
+  theme_minimal() +
+  labs(
+    title = "Number of Flights in Europe (2019-2021)",
+    x = "Month",
+    y = "Total Flights")
+```
+We can also use a boxplot to visualise the information. I removed the box outliers to unclutter the view.
+```{r box-plot, fig.cap="The box plot of the same chart (Outliers removed)"}
+
+flight_data_long <- data_filtered %>%
+  pivot_longer(cols = Total_IFR_Movements_1, names_to = "Flight_Total_Pivot", values_to = "Value")
+
+
+# Calculate quartiles and IQR
+Q1 <- quantile(flight_data_long$Value, 0.25)
+Q3 <- quantile(flight_data_long$Value, 0.75)
+IQR <- Q3 - Q1
+
+# Determine lower and upper limits
+lower_limit <- Q1 - 0.25 * IQR
+upper_limit <- Q3 + 4 * IQR
+
+ggplot(flight_data_long, aes(x = factor(Flight_Month), y = Value, fill = factor(Flight_Year))) +
+  geom_boxplot(outlier.shape = NA, varwidth = TRUE) +
+  coord_cartesian(ylim = c(lower_limit,upper_limit)) +
+  labs(title = "Boxplot of Flights between January to December (2019-2021)",
+       x = "Month",
+       y = "Value",
+       fill = "Year")
+
+
+```
+From the boxplot, we see the lower is is very short. This indicated that almost all of the smaller flights are in the middle 50 quantile. It obviously indicates that there are no outliers less than 0 in the total flights (all numbers are greater that zero). We can that January and February has the same flight pattern for all the years.
+
+### Third research question using bar 
+
+This chart will provide answers to the third research question, which airport had the highest and lowest average flights during August 2021 in the United Kingdom?
+```{r flights-per-day, fig.cap="The average flight per day for August 2021 in the UK"}
+# Filter the dataset for August 2021
+data_august <- flight_dataset %>%
+  filter(Flight_Year == 2021, Flight_Month == "AUG", Country_Name == "United Kingdom")
+
+# Calculate the total flights (departures+arrivals) for each day for each airport
+daily_flights <- data_august %>%
+  group_by(Airport_Name, Flight_Date) %>%
+  summarize(total_flights = sum(Number_of_IFR_Departures_1) + sum(Number_of_IFR_Arrivals_1), .groups = 'drop')
+
+# Calculate the average flights per day for each airport
+avg_daily_flights <- daily_flights %>%
+  group_by(Airport_Name) %>%
+  summarize(avg_flights_per_day = mean(total_flights), .groups = 'drop')
+
+# Create a bar graph visualization using ggplot2
+ggplot(avg_daily_flights, aes(x = reorder(Airport_Name, avg_flights_per_day), y = avg_flights_per_day)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  labs(title = "Average Flights per Day in August 2021 (United Kingdom)",
+       x = "Airport",
+       y = "Average Flights per Day")
+```
+From this chart, it was noticed that Londonderry Eglinton Airport ([Now known as](https://en.wikipedia.org/wiki/City_of_Derry_Airport) City of Derry Airport) has the lowest flights per day while Heathrow Airport in London has the highest average flights per day in the United Kingdom.
+
+### Fourth research question using scatter plot
+
+The fourth research questions, "are there any significant correlations between total departure and arrival recorded by the airport operator and network manager in Europe?" will be answered using a scatter plot
+```{r scatter-plot, fig.cap="The scatter plot to show relationship between data recorded by network manager and airport operator"}
+data_clean <- flight_dataset %>% filter(!is.na(Total_IFR_Movements_2))
+
+ggplot(data_clean, aes(x = Total_IFR_Movements_1, y = Total_IFR_Movements_2)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "blue") +
+  labs(title = "Correlation between Network Manager and Airport Operator Flights Records",
+       x = "Number of Flights Recorded by Network Manager",
+       y = "Number of Flights Recorded by Airport Operator") +
+  theme_minimal()
+```
+From the chart, it was observed that there is an almost one-on-one linear correlation in the recorded data of the two operators. Most of the plots clustered around the line with very few differences when the total flight recorded by both was above 500. But larger differences are seen between 100 and 500. There are flights recorded by the Network manager but the Airport manager recorded zero. But there are no cases were the airport manager recorded and the network manager didn't record.
+
+# CONCLUSION
+
+In this exploratory data analysis, we investigated the European flight dataset covering the period from January 2016 to May 2022. Our primary research objectives were to understand the trends and patterns in flight traffic during this period and trends related to the impact of the COVID-19 pandemic on the aviation industry.
+
+Our findings revealed the following key insights:
+
+- Flight traffic across Europe experienced significant fluctuations after the pandemic, with marked decreases and increases.
+- The flight trends before, during, and after the COVID-19 pandemic showed a sharp decline in flight traffic during the pandemic period, followed by a gradual recovery as restrictions eased and the industry adapted to new safety measures
+- In August 2021, the UK airport with the highest average flights per day was found, as well as the airport with the lowest average flights per day 
+- We identified equal correlations between total departure and arrival numbers recorded by airport operators and network managers across the dataset.
+
+This analysis provides valuable insights into the state of the aviation industry in Europe a couple of years before and after a critical period of change and disruption. By understanding these trends and patterns, we make informed decisions to support the recovery and growth of the industry moving forward. However, this analysis it not without limitations, as the dataset only covers a specific time frame and geographical region. Future research could expand the scope of analysis to include additional data sources, passengers numbers, and more regions, as well as explore the relationship between flight traffic trends and other factors such as economic and political developments.
+
+# REFERENCES
+
+<div id="refs"></div>
+
+# APPENDIX
